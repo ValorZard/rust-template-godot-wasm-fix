@@ -27,8 +27,11 @@ RUSTFLAGS="-C link-args=-pthread \
 -C llvm-args=-enable-emscripten-cxx-exceptions=0 \
 -Z default-visibility=hidden \
 -Z link-native-libraries=no \
--Z emscripten-wasm-eh=false" cargo +nightly build -Zbuild-std --features wasm,threads --target wasm32-unknown-emscripten $PROFILE_FLAG
+-Z unstable-options \
+-C panic=immediate-abort" cargo +nightly build -Zbuild-std --features wasm,threads --target wasm32-unknown-emscripten $PROFILE_FLAG
 
+# remove old build
+rm -f target/wasm32-unknown-emscripten/$PROFILE/$CRATE_NAME.threads.wasm
 mv target/wasm32-unknown-emscripten/$PROFILE/$CRATE_NAME.wasm \
    target/wasm32-unknown-emscripten/$PROFILE/$CRATE_NAME.threads.wasm
 
