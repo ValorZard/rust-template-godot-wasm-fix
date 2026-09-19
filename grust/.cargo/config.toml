@@ -5,17 +5,19 @@ linker = "emcc"
 rustflags = [
     "-C",
     "link-args=-sSIDE_MODULE=2",
-    "-C",
-    "llvm-args=-enable-emscripten-cxx-exceptions=0",
     "-Z",
     "default-visibility=hidden",
     "-Z",
     "link-native-libraries=no",
-    # rust now uses wasm exception handling, but Godot's web export doesn't.
-    # so we just turn any exception handling off. 
-    # Unfortunately, this means if a Godot Rust game crashes on the web, we will have no idea why.
-    "-Z",
-    "unstable-options",
+    # Rust uses wasm exception handling on emscripten since 1.98 
+    # (-Zemscripten-wasm-eh was removed)
+    # but Godot's web export template does not export the __cpp_exception tag, 
+    # so an unwinding side module fails to load:
+    #   LinkError: Import "env" "__cpp_exception": tag import requires a WebAssembly.Tag
+    # panic=abort keeps that tag import out while preserving panic messages, 
+    # so a crash still prints "panicked at ..." to the browser console before aborting.
+    # This REQUIRES -Zbuild-std=std,panic_abort (see utils/web-build.sh);
+    # without it the prebuilt std pulls panic_unwind back in and the tag import returns.
     "-C",
-    "panic=immediate-abort",
+    "panic=abort",
 ]

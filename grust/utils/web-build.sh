@@ -20,20 +20,24 @@ fi
 
 echo "Building crate: $CRATE_NAME with profile: $PROFILE"
 
+# std must be rebuilt with panic_abort so that panic_unwind is never linked in.
+# Otherwise the prebuilt std imports the __cpp_exception tag, 
+# which Godot's web export template does not provide. 
+# See .cargo/config.toml for more context.
+BUILD_STD="-Zbuild-std=std,panic_abort"
+
 # Make thread build
 RUSTFLAGS="-C link-args=-pthread \
 -C target-feature=+atomics \
 -C link-args=-sSIDE_MODULE=2 \
--C llvm-args=-enable-emscripten-cxx-exceptions=0 \
 -Z default-visibility=hidden \
 -Z link-native-libraries=no \
--Z unstable-options \
--C panic=immediate-abort" cargo +nightly build -Zbuild-std --features wasm,threads --target wasm32-unknown-emscripten $PROFILE_FLAG
+-C panic=abort" cargo +nightly build $BUILD_STD --features wasm,threads --target wasm32-unknown-emscripten $PROFILE_FLAG
 
 # remove old build
 rm -f target/wasm32-unknown-emscripten/$PROFILE/$CRATE_NAME.threads.wasm
 mv target/wasm32-unknown-emscripten/$PROFILE/$CRATE_NAME.wasm \
    target/wasm32-unknown-emscripten/$PROFILE/$CRATE_NAME.threads.wasm
 
-# Make non-thread build
-cargo +nightly build --features wasm-nothreads -Zbuild-std --target wasm32-unknown-emscripten $PROFILE_FLAG
+# Make non-thread build (rustflags come from .cargo/config.toml)
+cargo +nightly build --features wasm-nothreads $BUILD_STD --target wasm32-unknown-emscripten $PROFILE_FLAG

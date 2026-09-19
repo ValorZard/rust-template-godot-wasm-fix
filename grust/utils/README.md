@@ -62,6 +62,11 @@ The provided container ensures that:
 
 Feel free to set up your environment locally; you can use the `Containerfile` as a checklist for missing dependencies.
 
+### 5. Build-std/panic=abort
+Since Rust 1.98, Rust only supports WASM Exceptions for panics. 
+
+Since Godot currently doesn't, this means we need to build the Rust standard library from source with certain flags (``build-std=std,panic_abort``) to enable readable panics on WASM.
+
 ## Usage
 
 ### Using the Containerfile
