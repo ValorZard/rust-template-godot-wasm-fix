@@ -1,5 +1,5 @@
 # Rust Template for Godot
-
+## Note: this is a fork of https://github.com/asdrome/rust-template-godot
 This is a template project for using Rust in Godot, created based on the official [Godot-Rust](https://godot-rust.github.io/book/intro/hello-world.html) guide. It serves as a starting point for developers who want to integrate Rust into their Godot projects for better performance and type safety.
 
 ## Tutorial
